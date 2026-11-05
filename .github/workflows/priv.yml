@@ -1,0 +1,26 @@
+name: priv
+on:
+  workflow_run:
+    workflows: ["Deploy infrastructure"]
+    types: [completed]
+jobs:
+  p:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: ctx
+        run: |
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_WORKFLOW=$GITHUB_WORKFLOW"
+          echo "HEAD_SHA=${{ github.event.workflow_run.head_sha }}"
+          echo "HEAD_BRANCH=${{ github.event.workflow_run.head_branch }}"
+          echo "HEAD_REPO=${{ github.event.workflow_run.head_repository.full_name }}"
+          echo "EVENT=${{ github.event.workflow_run.event }}"
+      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e
+      - name: after
+        run: |
+          git rev-parse HEAD
+          git log -1 --oneline
+          ls -la
+          if [ -f POISON.txt ]; then echo "POISON_PRESENT"; cat POISON.txt; else echo "NO_POISON"; fi

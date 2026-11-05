@@ -1,0 +1,9 @@
+name: Forged deployment
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  f:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "forged workflow ran"

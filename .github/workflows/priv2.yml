@@ -1,0 +1,23 @@
+name: priv2
+on:
+  workflow_run:
+    workflows: ["Forged deployment"]
+    types: [completed]
+jobs:
+  p:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: ctx
+        run: |
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "HEAD_SHA=${{ github.event.workflow_run.head_sha }}"
+          echo "HEAD_REPO=${{ github.event.workflow_run.head_repository.full_name }}"
+          echo "EVENT=${{ github.event.workflow_run.event }}"
+      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e
+      - name: after
+        run: |
+          git rev-parse HEAD
+          git log -1 --oneline
+          if [ -f POISON2.txt ]; then echo "POISON2_PRESENT"; cat POISON2.txt; else echo "NO_POISON2"; fi

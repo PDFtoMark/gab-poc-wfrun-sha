@@ -1,0 +1,27 @@
+name: priv3
+on:
+  workflow_run:
+    workflows: ["Deploy infrastructure"]
+    types: [completed]
+    branches: [main]
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ctx
+        env:
+          CANARY: ${{ secrets.CANARY }}
+        run: |
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "HEAD_SHA=${{ github.event.workflow_run.head_sha }}"
+          echo "HEAD_BRANCH=${{ github.event.workflow_run.head_branch }}"
+          echo "HEAD_REPO=${{ github.event.workflow_run.head_repository.full_name }}"
+          echo "EVENT=${{ github.event.workflow_run.event }}"
+          echo "HEAD_REPO_IS_FORK=${{ github.event.workflow_run.head_repository.fork }}"
+          if [ -n "$CANARY" ]; then echo SECRET_AVAILABLE=true; else echo SECRET_AVAILABLE=false; fi
+      - uses: actions/checkout@v4
+      - name: after
+        run: |
+          git rev-parse HEAD
+          if [ -f POISON.txt ]; then echo POISON_PRESENT; else echo NO_POISON; fi
